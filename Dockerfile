@@ -1,7 +1,6 @@
 ## Build
 FROM golang:1.21-alpine AS buildenv
 
-
 ADD go.mod go.sum /
 
 RUN go mod download
