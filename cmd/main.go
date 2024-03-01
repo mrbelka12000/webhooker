@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"os/signal"
 
@@ -32,10 +33,11 @@ func main() {
 
 	repo := repo.NewWebHooker(db, log)
 	srv := service.NewWebHooker(repo, log)
-
 	router := handler.RegisterRoutes(srv)
-
 	httpServer := server.NewServer(router, cfg)
+
+	log.Info().Msg(fmt.Sprintf("server started on port %s", cfg.HttpPort))
+
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt)
 

@@ -1,9 +1,13 @@
 package repo
 
 import (
+	"context"
 	"database/sql"
+	"fmt"
 
 	"github.com/rs/zerolog"
+
+	"github.com/mrbelka12000/webhooker/internal/models"
 )
 
 type WebHooker struct {
@@ -16,4 +20,63 @@ func NewWebHooker(db *sql.DB, log zerolog.Logger) *WebHooker {
 		db: db,
 		lg: log,
 	}
+}
+
+func (wh *WebHooker) Create(ctx context.Context, data *models.Data) (err error) {
+
+	_, err = wh.db.ExecContext(ctx, `
+	INSERT INTO web_hooks 
+		(callback_url,http_method, params, body, end_time) 
+	VALUES 
+	    ($1,$2,$3,$4,$5)`,
+		data.CallbackURL,
+		data.Method,
+		data.Params,
+		data.Body,
+		data.EndTime,
+	)
+
+	return
+}
+
+func (wh *WebHooker) List(ctx context.Context, pars models.DataListPars) ([]models.Data, error) {
+
+	var err error
+
+	var filterValues []interface{}
+	querySelect := `
+	SELECT callback_url,http_method, params, body, end_time
+`
+	queryFrom := ` FROM web_hooks `
+	queryWhere := ` WHERE 1 = 1`
+	queryOffset := fmt.Sprintf(" OFFSET %v", pars.Offset)
+	queryLimit := fmt.Sprintf(" LIMIT %v", pars.Limit)
+	queryOrderBy := " order by end_time asc"
+
+	rows, err := wh.db.QueryContext(ctx, querySelect+queryFrom+queryWhere+queryOrderBy+queryOffset+queryLimit, filterValues...)
+	if err != nil {
+		return nil, fmt.Errorf("query context: %w", err)
+	}
+	defer rows.Close()
+
+	var result []models.Data
+
+	for rows.Next() {
+		var d models.Data
+
+		err := rows.Scan(
+			&d.CallbackURL,
+			&d.Method,
+			&d.Params,
+			&d.Body,
+			&d.EndTime,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("rows scan: %w", err)
+		}
+
+		result = append(result, d)
+	}
+
+	return result, nil
 }
