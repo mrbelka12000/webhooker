@@ -7,6 +7,7 @@ import (
 
 	"github.com/rs/zerolog"
 
+	cron_jobs "github.com/mrbelka12000/webhooker/internal/cron-jobs"
 	"github.com/mrbelka12000/webhooker/internal/handler"
 	"github.com/mrbelka12000/webhooker/internal/repo"
 	"github.com/mrbelka12000/webhooker/internal/service"
@@ -37,6 +38,8 @@ func main() {
 	httpServer := server.NewServer(router, cfg)
 
 	log.Info().Msg(fmt.Sprintf("server started on port %s", cfg.HttpPort))
+
+	go cron_jobs.Start(srv, log)
 
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt)
