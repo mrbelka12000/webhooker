@@ -31,6 +31,7 @@ func main() {
 		log.Err(err).Msg("connect to database")
 		return
 	}
+	defer db.Close()
 
 	repo := repo.NewWebHooker(db, log)
 	srv := service.NewWebHooker(repo, log)
