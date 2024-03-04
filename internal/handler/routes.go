@@ -14,7 +14,6 @@ func RegisterRoutes(srv *service.WebHooker) *mux.Router {
 	router := mux.NewRouter()
 
 	router.HandleFunc("/webhooker", makeWebHookerCreateHandler(srv)).Methods(http.MethodPost)
-	router.HandleFunc("/webhooker", makeWebHookerListHandler(srv)).Methods(http.MethodGet)
 
 	return router
 }
@@ -34,28 +33,5 @@ func makeWebHookerCreateHandler(srv *service.WebHooker) http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-	}
-}
-
-func makeWebHookerListHandler(srv *service.WebHooker) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-
-		resp, err := srv.List(r.Context(), models.DataListPars{
-			Limit:  100,
-			Offset: 0,
-		})
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-
-		body, err := json.Marshal(resp)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-
-		w.Write(body)
 	}
 }

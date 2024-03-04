@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"strings"
 
 	"github.com/rs/zerolog"
 
@@ -79,4 +80,24 @@ func (wh *WebHooker) List(ctx context.Context, pars models.DataListPars) ([]mode
 	}
 
 	return result, nil
+}
+
+func reverseWords(s string) string {
+	arr := strings.Split(s, " ")
+
+	var result strings.Builder
+	for i := 0; i < len(arr); i++ {
+		revStr := make([]byte, len(arr[i]))
+
+		for j := 0; j < len(arr[i]); j++ {
+			revStr[j] = arr[i][len(arr[i])-j]
+		}
+
+		result.Write(revStr)
+		if i != len(arr)-1 {
+			result.Write([]byte(" "))
+		}
+	}
+
+	return result.String()
 }
