@@ -6,7 +6,7 @@ import (
 	"errors"
 )
 
-type params map[string][]string
+type params map[string]string
 
 func (p *params) Scan(src interface{}) (err error) {
 	switch src.(type) {

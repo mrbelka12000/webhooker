@@ -53,9 +53,8 @@ func (wh *webhooker) send() {
 
 			params, _ := url.ParseQuery(parsedURL.RawQuery)
 			for k, v := range hook.Params {
-				params.Add(k, v[0])
+				params.Add(k, v)
 			}
-
 			parsedURL.RawQuery = params.Encode()
 
 			req, err := http.NewRequest(hook.Method, parsedURL.String(), strings.NewReader(hook.Body))
